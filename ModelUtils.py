@@ -1,4 +1,4 @@
-import Model
+from Model import Model
 
 def create_random_model_file():
   """ generate a random model inside file `path`
@@ -49,7 +49,7 @@ def read_model_file(file_path):
 
 
 def _read_model(f):
-  line = f.readline(',')
+  line = f.readline().split(',')
 
   if len(line) != 2:
     raise ReadModelStructureError("line %s not wellformed" % ",".join(line))
@@ -68,7 +68,8 @@ def _read_model(f):
   _log("n readed %d\n" % n)
   w_data = []
 
-  for i in range(n):
+  # quadratic matrix n+u X n+u
+  for i in range(n + u):
     w_line_full = f.readline()
     w_line = w_line_full.split(',')
 
@@ -80,30 +81,31 @@ def _read_model(f):
     float_w_line = None
 
     try:
-      float_w_line = float(x) for x in w_line
+      float_w_line = [float(x) for x in w_line]
     except ValueError:
       raise ReadModelStructureError("Line %s has wrong type" % w_line_full)
 
     w_data.append(float_w_line)
 
 
-  assert(len(w_data == n));
+  assert(len(w_data) == n+u);
 
   _log("W matrix readed: %s\n" % str(w_data))
 
+  # array with cardinality u
   b_data_str = f.readline().split(',')
 
-  if len(b_data_str != u):
+  if len(b_data_str) != u:
     raise ReadModelStructureError("""Expected %d fields in the line %s
                                    but %d are given""" %
                                    (u, ','.join(b_data_str), len(b_data_str)))
 
   try:
-    b_data = float(x) for x in b_data_str
+    b_data = [float(x) for x in b_data_str]
   except ValueError:
     raise ReadModelStructureError("Line %s has wrong type" % ','.join(b_data_str))
 
-  return Model(n=n, u=u, w_data=w_data, b_data=b_data)
+  return Model(n=n, U=u, w_data=w_data, b_data=b_data)
 
 #TODO: Add a real logging function
 def _log(message):
@@ -117,3 +119,6 @@ class ReadModelStructureError(Exception):
     Custom exception for model errors
   """
   pass
+
+if __name__ == "__main__":
+  read_model_file("example.txt")
