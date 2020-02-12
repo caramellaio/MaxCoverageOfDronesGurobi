@@ -19,7 +19,39 @@ def create_random_model(bounds):
 
       Returns the new model
   """
-  pass
+
+  n = _choose_random(bound_tuple=bounds.n)
+  U = _choose_random(bound_tuple=bounds.U)
+  w_data = _choose_random(bound_tuple=bounds.w, dim_x=(U+n), dim_y=(U+n))
+  b_data = _choose_random(bound_tuple=bounds.b, dim_x=U)
+
+  return Model(n=n, U=U, w_data=w_data, b_data=b_data)
+
+def _choose_random(bound_tuple, is_int=True, dim_x=0, dim_y=0):
+  """ Return a random value in a given range
+
+      If is int use normal random function, otherwise uses unif function
+  """
+  # < 0 is always invalid
+  assert(dim_x >= 0 and dim_y >= 0)
+
+  if dim_x == 0 and dim_y == 0:
+    return randrange(lb, ub) if is_int else random.uniform(lb, ub)
+
+  # if we consider an array dim_x > 0
+  assert(dim_x > 0)
+
+  outer_array = []
+
+  for i in range(dim_x):
+    inner_val = _choose_random(bound_tuple, is_int) if dim_y == 0 else []
+    for j in range(dim_y):
+      cell_val = 0 if i == j else _choose_random(bound_tuple, is_int)
+      inner_val.append(cell_val)
+
+    outer_array.append(inner_val)
+
+  return outer_array
 
 def create_models_incrementally(count, bound_param, incr_val):
   """ Generate a list of models increasing bound_param by incr_val
@@ -121,4 +153,4 @@ class ReadModelStructureError(Exception):
   pass
 
 if __name__ == "__main__":
-  read_model_file("example.txt")
+  m = read_model_file("example.txt")
