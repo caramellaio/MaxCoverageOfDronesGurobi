@@ -91,12 +91,26 @@ def write_model_to_file(model, out_file):
 
   _log("Model succesfully written to file %s" % out_file)
 
-def create_models_incrementally(count, bound_param, incr_val):
+def create_models_incrementally(bound_param="n", start=1, incr_val=1, times=10):
   """ Generate a list of models increasing bound_param by incr_val
 
       bound_param MUST be a parameter of type `int`
   """
-  pass
+  bounds = DEF_BOUNDS
+
+  if not bound_param in ["b", "n", "U", "w"]:
+    raise ValueError("Invalid bound_param value")
+
+  gen_models = []
+
+  for i in range(times):
+    bounds[bound_param] = (start + i*incr_val, start + i*incr_val)
+
+    m = create_random_model(bounds)
+
+    gen_models.append(m)
+
+  return gen_models
 
 def read_model_file(file_path):
   """ Read a model from a model files
@@ -185,6 +199,7 @@ def _read_model(f):
 def _log(message):
   print(message)
 
+
 #TODO: Use this class in a more structured way:
 #      e.g. instead of printing messages directly from raise use some sort of
 #           error type + data information
@@ -206,4 +221,12 @@ if __name__ == "__main__":
 
   create_random_model_file(DEF_BOUNDS, "example_rand.txt")
   m = read_model_file("example_rand.txt")
+
+  l = create_models_incrementally()
+
+  i = 0
+  for model in l:
+    write_model_to_file(model, "example_rand_%d.txt" % i)
+    os.remove("example_rand_%d.txt" % i)
+    i += 1
   os.remove("example_rand.txt")
