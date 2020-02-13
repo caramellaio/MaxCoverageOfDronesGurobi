@@ -38,7 +38,6 @@ class Model:
     if len(self.b_data) != self.U:
       return False
 
-    print(self.b_data)
     for b_val in self.b_data:
       if b_val < 0.0:
         return False

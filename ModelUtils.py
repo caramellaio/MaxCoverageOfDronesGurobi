@@ -1,4 +1,7 @@
 from Model import Model
+import random
+
+DEF_BOUNDS = {'n' : (5,5), 'U' : (1,2), 'w' : (0.1, 9.55), 'b' : (15.3, 54.4)}
 
 def create_random_model_file(bounds, out_file):
   """ generate a random model inside file `path`
@@ -21,10 +24,11 @@ def create_random_model(bounds):
       Returns the new model
   """
 
-  n = _choose_random(bound_tuple=bounds.n)
-  U = _choose_random(bound_tuple=bounds.U)
-  w_data = _choose_random(bound_tuple=bounds.w, dim_x=(U+n), dim_y=(U+n))
-  b_data = _choose_random(bound_tuple=bounds.b, dim_x=U)
+  n = _choose_random(bound_tuple=bounds["n"])
+  U = _choose_random(bound_tuple=bounds["U"])
+  w_data = _choose_random(bound_tuple=bounds["w"], is_int=False,
+                          dim_x=(U+n), dim_y=(U+n))
+  b_data = _choose_random(bound_tuple=bounds["b"], is_int=False, dim_x=U)
 
   return Model(n=n, U=U, w_data=w_data, b_data=b_data)
 
@@ -36,8 +40,15 @@ def _choose_random(bound_tuple, is_int=True, dim_x=0, dim_y=0):
   # < 0 is always invalid
   assert(dim_x >= 0 and dim_y >= 0)
 
+  lb, ub = bound_tuple
+
+  assert(ub >= lb)
+
   if dim_x == 0 and dim_y == 0:
-    return randrange(lb, ub) if is_int else random.uniform(lb, ub)
+    # randrange throws an exception if lb == ub.
+    if lb == ub:
+      return lb
+    return random.randrange(lb, ub) if is_int else random.uniform(lb, ub)
 
   # if we consider an array dim_x > 0
   assert(dim_x > 0)
@@ -78,7 +89,7 @@ def write_model_to_file(model, out_file):
 
     out_f.write("%s\n" % str_b_data)
 
-  log("Model succesfully written to file %s" % out_file)
+  _log("Model succesfully written to file %s" % out_file)
 
 def create_models_incrementally(count, bound_param, incr_val):
   """ Generate a list of models increasing bound_param by incr_val
@@ -100,8 +111,9 @@ def read_model_file(file_path):
   try:
     with open(file_path, "r") as f_read:
       res_model = _read_model(f_read)
+      _log("Model succesfully created from file %s" % file_path)
   except IOError:
-    print("IOError during model reading...\n")
+    _log("IOError during model reading...\n")
     exit(1)
 
   return res_model
@@ -164,6 +176,9 @@ def _read_model(f):
   except ValueError:
     raise ReadModelStructureError("Line %s has wrong type" % ','.join(b_data_str))
 
+
+  _log("B array readed: %s\n" % str(b_data))
+
   return Model(n=n, U=u, w_data=w_data, b_data=b_data)
 
 #TODO: Add a real logging function
@@ -179,5 +194,16 @@ class ReadModelStructureError(Exception):
   """
   pass
 
+
 if __name__ == "__main__":
-  m = read_model_file("example.txt")
+  #import argparse
+  import os
+
+  #parser = argparse.ArgumentParser()
+  #parser.add_argument('-o', '--out-file', type=str, required=True)
+
+  #options = parser.parse_args()
+
+  create_random_model_file(DEF_BOUNDS, "example_rand.txt")
+  m = read_model_file("example_rand.txt")
+  os.remove("example_rand.txt")
