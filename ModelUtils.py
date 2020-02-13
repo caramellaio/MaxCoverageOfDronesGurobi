@@ -1,6 +1,6 @@
 from Model import Model
 
-def create_random_model_file():
+def create_random_model_file(bounds, out_file):
   """ generate a random model inside file `path`
 
       If file already exists try to override it.
@@ -8,7 +8,8 @@ def create_random_model_file():
       This function returns True if the model was succesfully written to the
       file
   """
-  pass
+  m = create_random_model(bounds)
+  write_model_to_file(m, out_file)
 
 
 def create_random_model(bounds):
@@ -52,6 +53,32 @@ def _choose_random(bound_tuple, is_int=True, dim_x=0, dim_y=0):
     outer_array.append(inner_val)
 
   return outer_array
+
+def write_model_to_file(model, out_file):
+  """ Write a model specification inside the file `out_file`
+      Raises IOError if an IO problem occur.
+      Raises InvalidModelError if the model is not valid
+  """
+
+  model.check_validity()
+  n = model.n
+  U = model.U
+
+  b_data = model.b_data
+  w_data = model.w_data
+
+  with open(out_file, "w") as out_f:
+    out_f.write("%d,%d\n" % (U, n))
+
+    for line in w_data:
+      str_line = ','.join([str(field) for field in line])
+      out_f.write("%s\n" % str_line)
+
+    str_b_data = ','.join([str(b_ith) for b_ith in b_data])
+
+    out_f.write("%s\n" % str_b_data)
+
+  log("Model succesfully written to file %s" % out_file)
 
 def create_models_incrementally(count, bound_param, incr_val):
   """ Generate a list of models increasing bound_param by incr_val
