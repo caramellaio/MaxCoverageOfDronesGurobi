@@ -32,6 +32,7 @@ def create_random_model(bounds):
 
   return Model(n=n, U=U, w_data=w_data, b_data=b_data)
 
+
 def _choose_random(bound_tuple, is_int=True, dim_x=0, dim_y=0):
   """ Return a random value in a given range
 
@@ -65,6 +66,7 @@ def _choose_random(bound_tuple, is_int=True, dim_x=0, dim_y=0):
 
   return outer_array
 
+
 def write_model_to_file(model, out_file):
   """ Write a model specification inside the file `out_file`
       Raises IOError if an IO problem occur.
@@ -91,6 +93,7 @@ def write_model_to_file(model, out_file):
 
   _log("Model succesfully written to file %s" % out_file)
 
+
 def create_models_incrementally(bound_param="n", start=1, incr_val=1, times=10):
   """ Generate a list of models increasing bound_param by incr_val
 
@@ -111,6 +114,7 @@ def create_models_incrementally(bound_param="n", start=1, incr_val=1, times=10):
     gen_models.append(m)
 
   return gen_models
+
 
 def read_model_file(file_path):
   """ Read a model from a model files
@@ -195,9 +199,11 @@ def _read_model(f):
 
   return Model(n=n, U=u, w_data=w_data, b_data=b_data)
 
+
 #TODO: Add a real logging function
 def _log(message):
   print(message)
+
 
 
 #TODO: Use this class in a more structured way:
@@ -208,6 +214,7 @@ class ReadModelStructureError(Exception):
     Custom exception for model errors
   """
   pass
+
 
 
 if __name__ == "__main__":
