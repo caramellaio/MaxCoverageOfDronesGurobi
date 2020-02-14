@@ -81,6 +81,14 @@ def solve_model(n, U, w, b_data):
       print('Optimization was stopped with status ' + str(status))
       sys.exit(0)
 
+    return _parse_results(model)
+
+def _parse_results(model):
+  return {
+    "obj_val" : model.ObjVal,
+    "var_map" : dict(map(lambda x: (x.VarName, x.X), model.getVars()))
+  }
+
 """
   solve_model(n=3, U=2,
               w_data= [[0.0, 0.5, 0.9, 1.0, 1.3],
@@ -91,10 +99,12 @@ def solve_model(n, U, w, b_data):
               b_data= [20, 20])
 """
 if __name__ == "__main__":
-  solve_model(n=3, U=2,
+  res = solve_model(n=3, U=2,
               w= [[0.0, 0.5, 0.9, 1.0, 1.3],
                        [0.5, 0.0, 0.5, 1.5, 1.5],
                        [0.9, 0.5, 0.0, 1.5, 0.9],
                        [1.0, 1.5, 1.5, 0.0, 9.0],
                        [1.3, 1.5, 0.9, 9.0, 0.0]],
               b_data = [2, 3])
+
+  print(res)
