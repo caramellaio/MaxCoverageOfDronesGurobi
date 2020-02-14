@@ -6,6 +6,7 @@ import argparse
 import os
 from ModelUtils import write_model_to_file, create_models_incrementally
 from MaxCov import solve_model
+from plot import plot
 
 MODEL_NAME = "model"
 ACCEPTED_PARAMS = ["b", "U"]
@@ -82,7 +83,7 @@ def _error(msg):
   print("Error: %s\n" % msg)
   exit(1)
 
-if __name__ == "__main__":
+def _gen_options():
   parser = argparse.ArgumentParser()
 
   parser.add_argument('-o', '--out-folder', type=str, required=True,
@@ -96,16 +97,35 @@ if __name__ == "__main__":
   parser.add_argument('-g', '--growth-val', type=float, required=True,
                       help="Value to increment in each step")
 
-  options = parser.parse_args()
+  return parser.parse_args()
+
+if __name__ == "__main__":
+  options = _gen_options()
+
   _check_param_correctness(options)
 
   models = create_models_incrementally()
 
   _process_output_folder(options.out_folder)
 
+  plt_data = []
+
   for m in models:
     model_name = "%s_%d_%d.txt" % (MODEL_NAME, m.U, m.n)
+
     model_file_path = os.path.join(options.out_folder, model_name)
-    solve_model(n=m.n, U=m.U, w=m.w_data, b_data = m.b_data)
+    res = solve_model(n=m.n, U=m.U, w=m.w_data, b_data = m.b_data)
     write_model_to_file(m, model_file_path)
 
+    param_val = sum(m.b_data) if "b" == options.incremental_param else m.U
+    plt_data.append((param_val, res["obj_val"]))
+
+
+  img_file = os.path.join(options.out_folder, "plot.png")
+  plot(values=plt_data,
+       x_axis_name="param value",
+       y_axis_name="objective value",
+       title="MaxCov analysis",
+       out_file=img_file)
+
+  print("Plot written to file %s" % img_file)
