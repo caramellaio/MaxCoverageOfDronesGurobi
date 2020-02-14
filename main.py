@@ -90,7 +90,7 @@ def _gen_options():
                       help="output directory where data is saved")
   parser.add_argument('-p', '--incremental-param', type=str, required=True,
                       help="parameter to increment. Can be either: b|U")
-  parser.add_argument('-t', '--times', type=float, required=True,
+  parser.add_argument('-t', '--times', type=int, required=True,
                       help="Number of incremental verifications")
   parser.add_argument('-s', '--starting-val', type=float, required=True,
                       help="Initial starting value for parameter")
@@ -104,7 +104,10 @@ if __name__ == "__main__":
 
   _check_param_correctness(options)
 
-  models = create_models_incrementally()
+  models = create_models_incrementally(bound_param=options.incremental_param,
+                                       start=options.starting_val,
+                                       incr_val=options.growth_val,
+                                       times=options.times)
 
   _process_output_folder(options.out_folder)
 

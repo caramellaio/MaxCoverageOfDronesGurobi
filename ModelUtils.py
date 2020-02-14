@@ -94,7 +94,7 @@ def write_model_to_file(model, out_file):
   _log("Model succesfully written to file %s" % out_file)
 
 
-def create_models_incrementally(bound_param="n", start=1, incr_val=1, times=10):
+def create_models_incrementally(bound_param="U", start=1, incr_val=1, times=10):
   """ Generate a list of models increasing bound_param by incr_val
 
       bound_param MUST be a parameter of type `int`
