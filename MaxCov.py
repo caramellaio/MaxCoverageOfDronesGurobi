@@ -18,6 +18,10 @@ w[n -1, 0], .. w[u -1, n-1] ...
 b0, b1, .., b_{u - 1}
 """
 def solve_model(n, U, w, b_data):
+  assert(n > 0 and U > 0)
+
+  print((n, U))
+  print(b_data)
   with gp.Model("MaxCov") as model:
     delta = model.addVars(n, vtype=GRB.BINARY, name="delta")
 

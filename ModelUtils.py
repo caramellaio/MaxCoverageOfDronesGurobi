@@ -1,7 +1,7 @@
 from Model import Model
 import random
 
-DEF_BOUNDS = {'n' : (5,5), 'U' : (1,2), 'w' : (0.1, 9.55), 'b' : (15.3, 54.4)}
+DEF_BOUNDS = {'n' : (20,20), 'U' : (1,5), 'w' : (6.3, 12.55), 'b' : (13.3, 20.0)}
 
 def create_random_model_file(bounds, out_file):
   """ generate a random model inside file `path`
@@ -26,6 +26,9 @@ def create_random_model(bounds):
 
   n = _choose_random(bound_tuple=bounds["n"])
   U = _choose_random(bound_tuple=bounds["U"])
+
+  _log("Creating random model with bounds: %s" % str(bounds))
+
   w_data = _choose_random(bound_tuple=bounds["w"], is_int=False,
                           dim_x=(U+n), dim_y=(U+n))
   b_data = _choose_random(bound_tuple=bounds["b"], is_int=False, dim_x=U)
@@ -97,22 +100,54 @@ def write_model_to_file(model, out_file):
 def create_models_incrementally(bound_param="U", start=1, incr_val=1, times=10):
   """ Generate a list of models increasing bound_param by incr_val
 
-      bound_param MUST be a parameter of type `int`
   """
   bounds = DEF_BOUNDS
 
-  if not bound_param in ["b", "n", "U", "w"]:
+  if not bound_param in ["b", "U"]:
     raise ValueError("Invalid bound_param value")
 
   gen_models = []
 
+  _log("Generating incremental model list...")
+  # if we use drones as parameter we must start from the biggest value
+  if "U" == bound_param:
+    start += (times-1) * incr_val
+    incr_val = -incr_val
+
+  bounds[bound_param] = (start, start)
+
+  # base case
+  gen_models.append(create_random_model(bounds))
+  _log("Adding new model with %s=%s" % (bound_param, str(start)))
+
+  # because the initial model was already considered
+  for i in range(1, times):
+    # uses the last model
+    m = gen_models[-1].copy()
+    new_param_val = start + i*incr_val
+
+    if "U" == bound_param:
+      # we changed the sign before. Might be written better
+      for i in range(-incr_val):
+        m.remove_U()
+    else:
+      m.set_all_b(new_param_val)
+
+    _log("Adding new model with %s=%s" % (bound_param, str(new_param_val)))
+    gen_models.append(m)
+
+
+  """
+  bound[bound_para]
   for i in range(times):
     bounds[bound_param] = (start + i*incr_val, start + i*incr_val)
 
     m = create_random_model(bounds)
 
     gen_models.append(m)
+  """
 
+  _log("Model list %s generated..." % gen_models)
   return gen_models
 
 

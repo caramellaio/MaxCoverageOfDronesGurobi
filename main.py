@@ -42,16 +42,15 @@ def _check_param_correctness(options):
       _warning("Growth_val is not an integer value. New Growth_val = %d" \
                % int_growth_val)
 
-      # TODO: Side effects are not good
-      options.growth_val = float(int_growth_val)
 
     if float(int_starting_val) != options.starting_val:
       _warning("Starting_val is not an integer value. New Starting_val = %d" \
                % int_starting_val)
 
-      # TODO: Side effects are not good
-      options.starting_val = float(int_starting_val)
 
+    # we need to parse the parameters to int if "U" is considered
+    options.growth_val = int_growth_val
+    options.starting_val = int_starting_val
 
 def _process_output_folder(out_folder):
   """ Process output folder parameter
@@ -118,6 +117,7 @@ if __name__ == "__main__":
 
     model_file_path = os.path.join(options.out_folder, model_name)
     res = solve_model(n=m.n, U=m.U, w=m.w_data, b_data = m.b_data)
+    print(res)
     write_model_to_file(m, model_file_path)
 
     param_val = sum(m.b_data) if "b" == options.incremental_param else m.U
